@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <!-- ═══════════════════════════════════════════════════
+       त्यौहार कॉन्फिग — सिर्फ ये बदलें दूसरे त्यौहार के लिए
+       ═══════════════════════════════════════════════════ -->
+  <script>
+    const FESTIVAL_NAME     = "दीवाली";
+    const FESTIVAL_EMOJI    = "🪔";
+    const FESTIVAL_SUB      = "रोशनी का त्यौहार";
+    // {name} = sender का नाम यहाँ आएगा
+    const GREETING_TEMPLATE = "{name} की तरफ से आप सभी को\nदीपावली की हार्दिक शुभकामनाएं! 🪔\nआपके घर में सुख, समृद्धि और खुशियाँ आएं।";
+    const WHATSAPP_TEMPLATE = "🪔 *{name}* की तरफ से आपको और आपके पूरे परिवार को *दीपावली* की हार्दिक शुभकामनाएं! 🪔\n\nआपकी शुभकामनाएं यहाँ देखें:\n{url}\n\nआप भी अपनी शुभकामनाएं बनाएं! 🙏";
+    const THEME = {
+      primary:   "#FF6B00",
+      secondary: "#FFB800",
+      accent:    "#FF3D00",
+      bg:        "#1A0A00",
+      card:      "#2D1500",
+      light:     "#FFF4E0",
+    };
+  </script>
+  <!-- ═══════════════════════════════════════════════════ -->
+
+  <title>दीपावली की शुभकामनाएं 🪔 – अपनी शुभकामनाएं बनाएं</title>
+  <meta name="description" content="अपनी दीपावली की शुभकामनाएं बनाएं और WhatsApp पर भेजें। बस अपना नाम डालें और एक क्लिक में शेयर करें!" />
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="दीपावली की शुभकामनाएं 🪔" />
+  <meta property="og:description" content="अपनी दीपावली की शुभकामनाएं बनाएं और WhatsApp पर भेजें!" />
+  <meta property="og:image"       content="https://your-domain.vercel.app/og-image.png" />
+  <meta property="og:url"         content="https://your-domain.vercel.app/" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="दीपावली की शुभकामनाएं 🪔" />
+  <meta name="twitter:description" content="अपनी दीपावली की शुभकामनाएं बनाएं और WhatsApp पर भेजें!" />
+  <meta name="twitter:image"       content="https://your-domain.vercel.app/og-image.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Poppins for UI + Hind for Hindi text -->
+  <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=Poppins:wght@700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:   #FF6B00;
+      --secondary: #FFB800;
+      --accent:    #FF3D00;
+      --bg:        #1A0A00;
+      --card:      #2D1500;
+      --light:     #FFF4E0;
+      --muted:     rgba(255,244,224,0.55);
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: 'Hind', sans-serif;
+      background-color: var(--bg);
+      color: var(--light);
+      overflow-x: hidden;
+    }
+
+    /* ── Glowing background ── */
+    .bg-glow { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .glow-orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(70px); opacity: 0.16;
+      animation: floatOrb 9s ease-in-out infinite alternate;
+    }
+    .glow-orb:nth-child(1) { width:300px;height:300px;background:var(--primary);top:-80px;left:-80px;animation-delay:0s; }
+    .glow-orb:nth-child(2) { width:220px;height:220px;background:var(--secondary);bottom:5%;right:-60px;animation-delay:-4s; }
+    .glow-orb:nth-child(3) { width:180px;height:180px;background:var(--accent);bottom:25%;left:5%;animation-delay:-7s; }
+    @keyframes floatOrb {
+      from { transform: translateY(0) scale(1); }
+      to   { transform: translateY(24px) scale(1.1); }
+    }
+
+    /* ── Floating emojis ── */
+    .floaters { position:fixed;inset:0;pointer-events:none;z-index:0; }
+    .floater  { position:absolute;opacity:0;animation:riseUp 7s ease-in infinite; }
+    @keyframes riseUp {
+      0%   { opacity:0; transform:translateY(0) rotate(0deg); }
+      15%  { opacity:0.65; }
+      85%  { opacity:0.3; }
+      100% { opacity:0; transform:translateY(-92vh) rotate(18deg); }
+    }
+
+    /* ── Ad slots ── */
+    .ad-slot {
+      width:100%; min-height:60px;
+      background:rgba(255,255,255,0.03);
+      border:1px dashed rgba(255,255,255,0.08);
+      display:flex;align-items:center;justify-content:center;
+      font-size:10px;color:rgba(255,255,255,0.15);letter-spacing:.06em;
+    }
+    .ad-slot.top    { border-bottom:1px dashed rgba(255,255,255,0.08); }
+    .ad-slot.bottom { border-top:1px dashed rgba(255,255,255,0.08); }
+
+    /* ── Page wrapper ── */
+    .page { min-height:100vh;display:flex;flex-direction:column; }
+    .main {
+      flex:1;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      padding:24px 16px;position:relative;
+    }
+
+    /* ── Card ── */
+    .card {
+      position:relative;z-index:1;
+      background:var(--card);
+      border:1px solid rgba(255,184,0,0.18);
+      border-radius:24px;padding:28px 22px;
+      width:100%;max-width:420px;
+      box-shadow:0 8px 48px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,184,0,0.12);
+    }
+
+    /* ── Festival header ── */
+    .fest-header { text-align:center;margin-bottom:24px; }
+    .fest-emoji {
+      font-size:58px;line-height:1;display:block;margin-bottom:6px;
+      filter:drop-shadow(0 0 14px rgba(255,184,0,0.65));
+      animation:pulseDiya 2.5s ease-in-out infinite;
+    }
+    @keyframes pulseDiya {
+      0%,100% { filter:drop-shadow(0 0 10px rgba(255,184,0,0.5));transform:scale(1); }
+      50%      { filter:drop-shadow(0 0 24px rgba(255,184,0,0.95));transform:scale(1.07); }
+    }
+    .fest-sub  { font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--secondary);font-weight:600;margin-bottom:2px; }
+    .fest-title {
+      font-family:'Poppins',sans-serif;font-size:26px;font-weight:800;line-height:1.1;
+    }
+    .fest-title span {
+      background:linear-gradient(90deg,var(--secondary),var(--primary));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+
+    /* ── Greeting box ── */
+    .greeting-box {
+      background:linear-gradient(135deg,rgba(255,107,0,0.11),rgba(255,184,0,0.07));
+      border:1px solid rgba(255,184,0,0.22);
+      border-radius:16px;padding:22px 18px;
+      text-align:center;margin-bottom:20px;
+    }
+    .greeting-emoji { font-size:34px;display:block;margin-bottom:10px; }
+    .greeting-sender {
+      font-family:'Poppins',sans-serif;
+      color:var(--secondary);font-size:22px;font-weight:800;
+      display:block;margin-bottom:6px;
+    }
+    .greeting-msg {
+      font-size:16px;font-weight:500;
+      color:var(--light);line-height:1.65;
+      white-space:pre-line;
+    }
+
+    /* ── Input ── */
+    .input-label {
+      display:block;font-size:14px;font-weight:600;
+      color:var(--secondary);margin-bottom:10px;
+    }
+    .name-input {
+      width:100%;padding:16px 18px;border-radius:14px;
+      border:2px solid rgba(255,184,0,0.22);
+      background:rgba(255,255,255,0.06);
+      color:var(--light);font-size:18px;
+      font-family:'Hind',sans-serif;font-weight:600;
+      outline:none;transition:border-color .2s,background .2s;
+      -webkit-appearance:none;
+    }
+    .name-input::placeholder { color:rgba(255,244,224,0.28);font-weight:400; }
+    .name-input:focus { border-color:var(--secondary);background:rgba(255,255,255,0.09); }
+
+    /* ── Buttons ── */
+    .btn {
+      display:flex;align-items:center;justify-content:center;
+      gap:10px;width:100%;padding:17px 22px;
+      border-radius:14px;border:none;
+      font-family:'Hind',sans-serif;font-size:17px;font-weight:700;
+      cursor:pointer;text-decoration:none;
+      transition:transform .14s,filter .14s,box-shadow .14s;
+      -webkit-tap-highlight-color:transparent;
+      margin-top:12px;
+    }
+    .btn:active { transform:scale(0.96); }
+
+    .btn-create {
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      color:#fff;box-shadow:0 4px 22px rgba(255,107,0,0.42);
+    }
+    .btn-create:hover { box-shadow:0 6px 30px rgba(255,107,0,0.58);filter:brightness(1.05); }
+
+    .btn-whatsapp {
+      background:#25D366;color:#fff;
+      box-shadow:0 4px 22px rgba(37,211,102,0.38);
+    }
+    .btn-whatsapp:hover { filter:brightness(1.07); }
+
+    .btn-own {
+      background:linear-gradient(135deg,var(--primary),var(--accent));
+      color:#fff;box-shadow:0 4px 22px rgba(255,61,0,0.35);
+    }
+
+    .btn-change {
+      background:rgba(255,255,255,0.08);color:var(--muted);
+      border:1px solid rgba(255,255,255,0.12);
+      font-size:14px;padding:13px 18px;margin-top:8px;
+    }
+
+    /* ── Secondary share row ── */
+    .share-row { display:flex;gap:10px;margin-top:10px; }
+    .btn-mini {
+      flex:1;padding:13px 8px;border-radius:12px;border:none;
+      font-family:'Hind',sans-serif;font-size:13px;font-weight:600;
+      cursor:pointer;transition:transform .14s,filter .14s;
+      -webkit-tap-highlight-color:transparent;
+      display:flex;align-items:center;justify-content:center;gap:5px;
+    }
+    .btn-mini:active { transform:scale(0.95); }
+    .btn-tg     { background:#2CA5E0;color:#fff; }
+    .btn-native { background:rgba(255,255,255,0.09);color:var(--light);border:1px solid rgba(255,255,255,0.14); }
+
+    /* ── Divider ── */
+    .divider { display:flex;align-items:center;gap:12px;margin:18px 0 0; }
+    .div-line { flex:1;height:1px;background:rgba(255,255,255,0.09); }
+    .div-txt  { font-size:11px;color:var(--muted);letter-spacing:.06em;white-space:nowrap; }
+
+    /* ── Hint text ── */
+    .hint { font-size:12px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.55; }
+
+    /* ── Sparkles ── */
+    .sparkles { text-align:center;font-size:16px;letter-spacing:7px;margin:4px 0 16px;opacity:0.55; }
+
+    .hidden { display:none !important; }
+
+    /* ── Received-from banner ── */
+    .received-from {
+      background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.18);
+      border-radius:12px;padding:12px 16px;
+      font-size:13px;color:var(--secondary);
+      text-align:center;margin-bottom:16px;font-weight:500;
+    }
+    .received-from strong { font-weight:700; }
+
+    @media (max-width:380px) {
+      .card { padding:22px 14px;border-radius:18px; }
+      .fest-emoji { font-size:46px; }
+      .fest-title { font-size:22px; }
+      .greeting-sender { font-size:19px; }
+      .greeting-msg { font-size:14px; }
+      .btn { font-size:15px;padding:15px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-glow" aria-hidden="true">
+  <div class="glow-orb"></div>
+  <div class="glow-orb"></div>
+  <div class="glow-orb"></div>
+</div>
+<div class="floaters" id="floaterContainer" aria-hidden="true"></div>
+
+<div class="page">
+
+  <!-- Top Ad -->
+  <div class="ad-slot top" id="adTop">विज्ञापन</div>
+
+  <main class="main">
+    <div class="card" role="main">
+
+      <!-- Festival Header — always visible -->
+      <div class="fest-header">
+        <span class="fest-emoji" id="hdrEmoji">🪔</span>
+        <p class="fest-sub" id="hdrSub">रोशनी का त्यौहार</p>
+        <h1 class="fest-title">शुभ <span id="hdrName">दीवाली</span></h1>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           स्क्रीन A: अपना नाम डालें (fresh visit)
+           ══════════════════════════════════════ -->
+      <div id="screenCreate">
+        <label class="input-label" for="senderInput">✍️ अपना नाम लिखें</label>
+        <input
+          type="text"
+          id="senderInput"
+          class="name-input"
+          placeholder="जैसे: राहुल, प्रिया, अमित…"
+          maxlength="40"
+          autocomplete="given-name"
+          autocapitalize="words"
+          inputmode="text"
+        />
+        <button class="btn btn-create" onclick="createGreeting()">
+          ✨ शुभकामनाएं बनाएं
+        </button>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           स्क्रीन B: आपकी शुभकामनाएं + शेयर करें
+           (नाम डालने के बाद दिखे)
+           ══════════════════════════════════════ -->
+      <div id="screenShare" class="hidden">
+        <div class="greeting-box">
+          <span class="greeting-emoji" id="shareEmoji">🪔</span>
+          <span class="greeting-sender" id="shareSenderName"></span>
+          <span class="greeting-msg"   id="shareMsg"></span>
+        </div>
+
+        <div class="sparkles">✦ ✦ ✦</div>
+
+        <!-- Primary: WhatsApp -->
+        <button class="btn btn-whatsapp" onclick="shareOnWhatsApp()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.525 5.847L.055 23.45l5.759-1.511A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.659-.514-5.179-1.412L3.2 21.753l1.179-4.468A9.956 9.956 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+          </svg>
+          WhatsApp पर भेजें
+        </button>
+
+        <!-- Secondary share -->
+        <div class="share-row">
+          <button class="btn-mini btn-tg"     onclick="shareOnTelegram()">✈️ Telegram</button>
+          <button class="btn-mini btn-native" id="btnNative" onclick="nativeShare()">📤 और विकल्प</button>
+        </div>
+
+        <div class="divider">
+          <div class="div-line"></div>
+          <div class="div-txt">या</div>
+          <div class="div-line"></div>
+        </div>
+
+        <button class="btn btn-change" onclick="resetToCreate()">✏️ नाम बदलें</button>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           स्क्रीन C: किसी और की शुभकामनाएं देखें
+           (?sender=Name URL से)
+
+           👉 यहाँ "आपको" दिखता है — receiver को greeting मिलती है
+           👉 No share button — सिर्फ अपनी बनाने का option
+           ══════════════════════════════════════ -->
+      <div id="screenReceive" class="hidden">
+
+        <!-- "X ने आपको भेजा" banner -->
+        <div class="received-from">
+          🎁 <strong id="receiveFromName"></strong> ने आपको शुभकामनाएं भेजी हैं
+        </div>
+
+        <!-- Greeting shown to the receiver — "{name} की तरफ से आपको..." -->
+        <div class="greeting-box">
+          <span class="greeting-emoji" id="receiveEmoji">🪔</span>
+          <span class="greeting-sender" id="receiveSenderName"></span>
+          <span class="greeting-msg"    id="receiveMsg"></span>
+        </div>
+
+        <div class="sparkles">✦ ✦ ✦</div>
+
+        <!-- Receiver creates THEIR OWN greeting (they become the new sender) -->
+        <button class="btn btn-own" onclick="createOwnGreeting()">
+          ✨ मैं भी शुभकामनाएं भेजूं
+        </button>
+        <p class="hint">अपने परिवार और दोस्तों को भेजें!</p>
+      </div>
+
+    </div><!-- .card -->
+  </main>
+
+  <!-- Bottom Ad -->
+  <div class="ad-slot bottom" id="adBottom">विज्ञापन</div>
+
+</div>
+
+<script>
+// ─── Config ───────────────────────────────────────────────────────────────
+const CFG = {
+  name:      FESTIVAL_NAME,
+  emoji:     FESTIVAL_EMOJI,
+  sub:       FESTIVAL_SUB,
+  greeting:  GREETING_TEMPLATE,
+  waMsg:     WHATSAPP_TEMPLATE,
+  theme:     THEME,
+};
+
+// ─── Apply theme ──────────────────────────────────────────────────────────
+(function(){
+  const r = document.documentElement.style;
+  r.setProperty('--primary',   CFG.theme.primary);
+  r.setProperty('--secondary', CFG.theme.secondary);
+  r.setProperty('--accent',    CFG.theme.accent);
+  r.setProperty('--bg',        CFG.theme.bg);
+  r.setProperty('--card',      CFG.theme.card);
+  r.setProperty('--light',     CFG.theme.light);
+})();
+
+// ─── Static labels ────────────────────────────────────────────────────────
+document.getElementById('hdrEmoji').textContent  = CFG.emoji;
+document.getElementById('hdrSub').textContent    = CFG.sub;
+document.getElementById('hdrName').textContent   = CFG.name;
+document.getElementById('shareEmoji').textContent   = CFG.emoji;
+document.getElementById('receiveEmoji').textContent = CFG.emoji;
+document.title = `शुभ ${CFG.name} ${CFG.emoji} – शुभकामनाएं बनाएं`;
+
+// ─── Build greeting text from template ────────────────────────────────────
+function buildGreetingText(senderName) {
+  // Template: "{name} की तरफ से आप सभी को\nदीपावली की हार्दिक शुभकामनाएं!..."
+  // The greeting always says "X की तरफ से" — sender wishing the receiver
+  return CFG.greeting.replace('{name}', senderName);
+}
+
+// ─── Build URL ────────────────────────────────────────────────────────────
+function buildURL(senderName) {
+  return window.location.origin + window.location.pathname + '?sender=' + encodeURIComponent(senderName);
+}
+
+// ─── Floating emojis ──────────────────────────────────────────────────────
+(function(){
+  const c = document.getElementById('floaterContainer');
+  const set = [CFG.emoji,'✨','🌟','💫','⭐','🎆'];
+  for(let i=0;i<14;i++){
+    const el = document.createElement('span');
+    el.className='floater';
+    el.textContent = set[Math.floor(Math.random()*set.length)];
+    el.style.left   = (Math.random()*95)+'%';
+    el.style.bottom = '-30px';
+    el.style.animationDelay    = (Math.random()*9)+'s';
+    el.style.animationDuration = (5+Math.random()*6)+'s';
+    el.style.fontSize = (13+Math.random()*15)+'px';
+    c.appendChild(el);
+  }
+})();
+
+// ─── Screen control ───────────────────────────────────────────────────────
+const S = {
+  create:  document.getElementById('screenCreate'),
+  share:   document.getElementById('screenShare'),
+  receive: document.getElementById('screenReceive'),
+};
+function show(which) {
+  Object.entries(S).forEach(([k,el]) => el.classList.toggle('hidden', k!==which));
+}
+
+// ─── State ────────────────────────────────────────────────────────────────
+let mySenderName = '';
+
+// ─── INIT — read URL ──────────────────────────────────────────────────────
+(function init(){
+  const params = new URLSearchParams(window.location.search);
+  const raw    = params.get('sender');
+
+  if (raw && raw.trim()) {
+    // Someone ELSE shared this link — show their greeting to the receiver
+    // The receiver sees: "Harshit की तरफ से आप सभी को दीपावली की..."
+    // The receiver does NOT share this — they must create their own
+    const senderName = decodeURIComponent(raw.trim()).replace(/[<>&"']/g,'').slice(0,40);
+
+    // Split template: first line = "{name} की तरफ से आप सभी को", rest = actual message
+    const greetingLines = buildGreetingText(senderName).split('\n');
+    const rest          = greetingLines.slice(1).join('\n');
+
+    document.getElementById('receiveFromName').textContent   = senderName;
+    document.getElementById('receiveSenderName').textContent = senderName;
+    document.getElementById('receiveMsg').textContent        = 'की तरफ से आप सभी को\n' + rest;
+
+    show('receive');
+  } else {
+    show('create');
+    setTimeout(()=>document.getElementById('senderInput').focus(), 350);
+  }
+})();
+
+// ─── Create greeting (Sender flow) ───────────────────────────────────────
+function createGreeting() {
+  const input = document.getElementById('senderInput');
+  const raw   = input.value.trim();
+  if (!raw) {
+    input.focus();
+    input.style.borderColor = '#FF3D00';
+    setTimeout(()=>input.style.borderColor='',1200);
+    return;
+  }
+  mySenderName = raw.replace(/[<>&"']/g,'').slice(0,40);
+
+  // Populate share screen — shows "Harshit की तरफ से आप सभी को..."
+  // This is what OTHERS will see when they open the link — sender wishes them
+  const fullText = buildGreetingText(mySenderName);
+  const lines    = fullText.split('\n');
+  document.getElementById('shareSenderName').textContent = mySenderName;
+  document.getElementById('shareMsg').textContent        = 'की तरफ से आप सभी को\n' + lines.slice(1).join('\n');
+
+  show('share');
+}
+
+// ─── Receiver clicks "मैं भी शुभकामनाएं भेजूं" ───────────────────────────
+// They become the NEW sender — they must enter their OWN name
+function createOwnGreeting() {
+  const cleanURL = window.location.origin + window.location.pathname;
+  window.history.pushState({}, '', cleanURL);
+  mySenderName = '';
+  document.getElementById('senderInput').value = '';
+  show('create');
+  setTimeout(()=>document.getElementById('senderInput').focus(), 300);
+}
+
+// ─── Change name ──────────────────────────────────────────────────────────
+function resetToCreate() {
+  mySenderName = '';
+  document.getElementById('senderInput').value = '';
+  show('create');
+  setTimeout(()=>document.getElementById('senderInput').focus(), 300);
+}
+
+// ─── WhatsApp share ───────────────────────────────────────────────────────
+function shareOnWhatsApp() {
+  if (!mySenderName) return;
+  const url  = buildURL(mySenderName);
+  const text = CFG.waMsg
+    .replace('{name}', mySenderName)
+    .replace('{url}',  url);
+  window.open('https://wa.me/?text='+encodeURIComponent(text), '_blank', 'noopener,noreferrer');
+}
+
+// ─── Telegram share ───────────────────────────────────────────────────────
+function shareOnTelegram() {
+  if (!mySenderName) return;
+  const url  = buildURL(mySenderName);
+  const text = CFG.emoji+' *'+mySenderName+'* की तरफ से '+CFG.name+' की शुभकामनाएं! '+CFG.emoji;
+  window.open('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(text), '_blank', 'noopener,noreferrer');
+}
+
+// ─── Native share / clipboard fallback ───────────────────────────────────
+async function nativeShare() {
+  if (!mySenderName) return;
+  const url  = buildURL(mySenderName);
+  const text = CFG.emoji+' '+mySenderName+' की तरफ से '+CFG.name+' की शुभकामनाएं!\n'+url;
+  if (navigator.share) {
+    try { await navigator.share({ title:'शुभ '+CFG.name+' '+CFG.emoji, text, url }); } catch(e){}
+  } else {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast('लिंक कॉपी हो गया! कहीं भी पेस्ट करके शेयर करें 🎉');
+    } catch(e) { toast('यह लिंक कॉपी करें: '+url); }
+  }
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────
+function toast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div'); t.id='toast';
+    Object.assign(t.style,{
+      position:'fixed',bottom:'80px',left:'50%',transform:'translateX(-50%)',
+      background:'rgba(0,0,0,0.88)',color:'#fff',
+      padding:'12px 20px',borderRadius:'10px',
+      fontSize:'14px',zIndex:'9999',
+      textAlign:'center',maxWidth:'90vw',
+      boxShadow:'0 4px 18px rgba(0,0,0,0.45)',
+      fontFamily:'Hind,sans-serif',
+      transition:'opacity .3s',
+    });
+    document.body.appendChild(t);
+  }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>{t.style.opacity='0';},3000);
+}
+
+// ─── Enter key ────────────────────────────────────────────────────────────
+document.getElementById('senderInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter') createGreeting();
+});
+
+// ─── Hide native share on desktop ────────────────────────────────────────
+if(!navigator.share && !/android|iphone|ipad|mobile/i.test(navigator.userAgent)){
+  const b=document.getElementById('btnNative');
+  if(b) b.style.display='none';
+}
+</script>
+</body>
+</html>
